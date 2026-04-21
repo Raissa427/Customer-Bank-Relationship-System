@@ -1,15 +1,3 @@
-/**
- * ═══════════════════════════════════════════════════════════════════
- *  BankingSystem.java  —  Main driver / simulation
- *
- *  Exception handling uses only types declared inside the seven model
- *  classes (nested static classes extending {@link Account.BankingException}),
- *  plus standard unchecked types such as {@link NumberFormatException}.
- *
- *  Demonstrates: try / multi-catch, validation before throws, meaningful
- *  messages, and controlled execution (no crash).
- * ═══════════════════════════════════════════════════════════════════
- */
 public class BankingSystem {
 
     public static void main(String[] args) {
@@ -40,7 +28,6 @@ public class BankingSystem {
         SavingsAccount aminaSavings = kcb.openSavingsAccount(amina, 2_000.00);
         CurrentAccount aminaCurrent = kcb.openCurrentAccount(amina, 300.00, 500.00);
 
-        // ── SCENARIO 1: deposits / withdrawals + multiple catch (specific → general) ─
         separator("SCENARIO 1 — Withdrawals and nested account exceptions");
 
         try {
@@ -48,7 +35,7 @@ public class BankingSystem {
             raissaSavings.withdraw(200.00);
             raissaSavings.withdraw(200.00);
             raissaSavings.withdraw(200.00);
-            raissaSavings.withdraw(50.00); // 4th withdrawal — exceeds monthly limit
+            raissaSavings.withdraw(50.00);
         } catch (Account.WithdrawalLimitExceededException e) {
             System.out.println("  [USER FEEDBACK] Withdrawal cap: " + e.getMessage());
         } catch (Account.InsufficientFundsException e) {
@@ -78,7 +65,6 @@ public class BankingSystem {
             System.out.println("  [USER FEEDBACK] " + e.getMessage());
         }
 
-        // ── SCENARIO 2: transfers — bank nested exceptions + account rule exceptions ─
         separator("SCENARIO 2 — Transfers (Bank.try/catch inside transfer + main catches)");
 
         try {
@@ -107,13 +93,11 @@ public class BankingSystem {
             System.out.println("  [USER FEEDBACK] " + e.getMessage());
         }
 
-        // ── SCENARIO 3: Monthly interest (try/catch inside SavingsAccount) ───────────
         separator("SCENARIO 3 — Monthly Interest");
 
         raissaSavings.applyMonthlyInterest();
         aminaSavings.applyMonthlyInterest();
 
-        // ── SCENARIO 4: Polymorphism + per-account handling ───────────────────────────
         separator("SCENARIO 4 — Polymorphism with isolated try/catch");
 
         Account[] accountsToWithdraw = { raissaSavings, raissaCurrent, johnCurrent };
@@ -134,7 +118,6 @@ public class BankingSystem {
             }
         }
 
-        // ── BONUS: validation + customer / transaction nested types ───────────────────
         separator("BONUS — Customer, transfer, amount, and JDK unchecked");
 
         try {
@@ -182,7 +165,6 @@ public class BankingSystem {
             System.out.println("  [HANDLED] NumberFormatException: " + e.getMessage());
         }
 
-        // ── Final reports ─────────────────────────────────────────────────────────────
         separator("BANK SUMMARIES");
         equity.printBankSummary();
         kcb.printBankSummary();

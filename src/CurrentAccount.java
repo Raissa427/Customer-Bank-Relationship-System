@@ -1,16 +1,10 @@
-/**
- * A current (checking) account designed for frequent transactions.
- * Allows overdraft up to a pre-approved limit and charges a fee for it.
- * Demonstrates: Inheritance + Polymorphism
- */
 public class CurrentAccount extends Account {
 
-    private static final double OVERDRAFT_FEE = 15.00; // flat fee per overdraft use
+    private static final double OVERDRAFT_FEE = 15.00;
 
-    private final double overdraftLimit; // e.g. -500 means up to $500 in debt
+    private final double overdraftLimit;
     private boolean overdraftActive = false;
 
-    // ── Constructor ────────────────────────────────────────────────────────────
     public CurrentAccount(String accountNumber, double initialBalance,
                           double overdraftLimit, Customer owner) {
         super(accountNumber, "Current Account", initialBalance, owner);
@@ -21,7 +15,6 @@ public class CurrentAccount extends Account {
         this.overdraftLimit = overdraftLimit;
     }
 
-    // ── Polymorphic overrides ──────────────────────────────────────────────────
     @Override
     public void withdraw(double amount) {
         validatePositiveFiniteAmount(amount, "Withdrawal");
@@ -34,7 +27,6 @@ public class CurrentAccount extends Account {
         applyWithdrawal(amount);
         if (getBalance() < 0) {
             if (!overdraftActive) {
-                // First time going into overdraft — charge the fee
                 applyWithdrawal(OVERDRAFT_FEE);
                 overdraftActive = true;
                 System.out.printf("  [%s] Overdraft activated. Fee of $%.2f charged. Balance: $%.2f%n",
@@ -56,7 +48,6 @@ public class CurrentAccount extends Account {
                 overdraftLimit, OVERDRAFT_FEE);
     }
 
-    // ── Getters ────────────────────────────────────────────────────────────────
     public double  getOverdraftLimit()  { return overdraftLimit;  }
     public boolean isOverdraftActive()  { return overdraftActive; }
 }

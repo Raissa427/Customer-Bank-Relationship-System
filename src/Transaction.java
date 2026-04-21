@@ -1,15 +1,10 @@
-/**
- * Represents a single financial transaction recorded on an account.
- * Demonstrates: Encapsulation (immutable value object)
- */
 public class Transaction {
 
-    private final String type;         // e.g. "DEPOSIT", "WITHDRAWAL"
+    private final String type;
     private final double amount;
     private final double balanceAfter;
     private final java.time.LocalDateTime timestamp;
 
-    // ── Constructor ────────────────────────────────────────────────────────────
     public Transaction(String type, double amount, double balanceAfter) {
         if (type == null || type.isBlank()) {
             throw new InvalidTransactionDataException("Transaction type is required.");
@@ -26,7 +21,6 @@ public class Transaction {
         this.timestamp    = java.time.LocalDateTime.now();
     }
 
-    // ── Getters ────────────────────────────────────────────────────────────────
     public String                   getType()         { return type;         }
     public double                   getAmount()       { return amount;       }
     public double                   getBalanceAfter() { return balanceAfter; }
@@ -38,7 +32,6 @@ public class Transaction {
                 timestamp.toLocalTime(), type, amount, balanceAfter);
     }
 
-    /** Immutable transaction record could not be built from the supplied values. */
     public static class InvalidTransactionDataException extends Account.BankingException {
         public InvalidTransactionDataException(String message) {
             super(message);

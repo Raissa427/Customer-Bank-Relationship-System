@@ -1,19 +1,12 @@
-/**
- * Abstract base class representing a bank account.
- * Demonstrates: Abstraction (abstract class + method), Encapsulation (private fields + getters)
- */
 public abstract class Account {
 
-    // ── Encapsulation: all fields are private ──────────────────────────────────
     private final String accountNumber;
     private final String accountType;
     private double balance;
     private final Customer owner;
 
-    // Keeps a history of every transaction on this account
     private final java.util.List<Transaction> transactionHistory;
 
-    // ── Constructor ────────────────────────────────────────────────────────────
     public Account(String accountNumber, String accountType, double initialBalance, Customer owner) {
         if (owner == null) {
             throw new BankingException("Every account must have an owner customer.");
@@ -36,32 +29,15 @@ public abstract class Account {
         this.owner              = owner;
         this.transactionHistory = new java.util.ArrayList<>();
 
-        // Record the opening deposit
         if (initialBalance > 0) {
             transactionHistory.add(new Transaction("OPENING DEPOSIT", initialBalance, initialBalance));
         }
     }
 
-    // ── Abstract methods — subclasses MUST provide their own implementation ────
-    /**
-     * Withdraw money. Each account type enforces its own rules.
-     *
-     * @throws InvalidAmountException   if the amount is not a positive finite value
-     * @throws AccountRuleException     if a business rule blocks the withdrawal
-     */
     public abstract void withdraw(double amount);
 
-    /**
-     * Returns a short description of what makes this account type special.
-     */
     public abstract String getAccountFeatures();
 
-    // ── Concrete shared behaviour ──────────────────────────────────────────────
-    /**
-     * Deposit money into the account. The same logic applies for all account types.
-     *
-     * @throws InvalidAmountException if the amount is not a positive finite value
-     */
     public void deposit(double amount) {
         validatePositiveFiniteAmount(amount, "Deposit");
         balance += amount;
@@ -70,7 +46,6 @@ public abstract class Account {
                 accountNumber, amount, balance);
     }
 
-    /** Shared validation for money movement amounts (deposit / internal credits). */
     protected static void validatePositiveFiniteAmount(double amount, String operationLabel) {
         if (Double.isNaN(amount) || Double.isInfinite(amount)) {
             throw new InvalidAmountException(
@@ -81,17 +56,11 @@ public abstract class Account {
         }
     }
 
-    /**
-     * Used internally by subclasses after they have validated the withdrawal.
-     */
     protected void applyWithdrawal(double amount) {
         balance -= amount;
         transactionHistory.add(new Transaction("WITHDRAWAL", amount, balance));
     }
 
-    /**
-     * Print the full transaction history for this account.
-     */
     public void printStatement() {
         System.out.println("  ┌─────────────────────────────────────────────────┐");
         System.out.printf ("  │  Statement for %s (%s)%n", accountNumber, accountType);
@@ -106,15 +75,12 @@ public abstract class Account {
         System.out.println("  └──────────────────────┴────────────┴─────────────┘");
     }
 
-    // ── Getters (Encapsulation: controlled read access) ────────────────────────
     public String  getAccountNumber()            { return accountNumber; }
     public String  getAccountType()              { return accountType;   }
     public double  getBalance()                  { return balance;       }
     public Customer getOwner()                   { return owner;         }
     public java.util.List<Transaction> getHistory() { return java.util.Collections.unmodifiableList(transactionHistory); }
 
-    // Protected setter — only subclasses may directly set the balance
-    // (used by CurrentAccount for overdraft adjustments)
     protected void setBalance(double balance)    { this.balance = balance; }
 
     @Override
@@ -122,9 +88,6 @@ public abstract class Account {
         return String.format("%s [%s] Balance: $%.2f", accountType, accountNumber, balance);
     }
 
-    // ═══ Nested custom unchecked exceptions (no extra .java files) ═════════════════
-
-    /** Root runtime exception for the banking model (all domain errors extend this). */
     public static class BankingException extends RuntimeException {
         public BankingException(String message) {
             super(message);
@@ -135,14 +98,12 @@ public abstract class Account {
         }
     }
 
-    /** Amount is zero, negative, NaN, or infinite when a positive finite value is required. */
     public static class InvalidAmountException extends BankingException {
         public InvalidAmountException(String message) {
             super(message);
         }
     }
 
-    /** Business rules on an account block the operation (funds, limits, overdraft, etc.). */
     public static class AccountRuleException extends BankingException {
         public AccountRuleException(String message) {
             super(message);

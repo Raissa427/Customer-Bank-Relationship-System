@@ -1,16 +1,10 @@
-/**
- * Represents a bank customer who can hold multiple accounts across different banks.
- * Demonstrates: Encapsulation, Composition (Customer HAS accounts)
- */
 public class Customer {
 
-    // ── Encapsulated fields ────────────────────────────────────────────────────
     private final String customerId;
     private final String name;
     private final String email;
     private final java.util.List<Account> accounts;
 
-    // ── Constructor ────────────────────────────────────────────────────────────
     public Customer(String customerId, String name, String email) {
         validateCustomerFields(customerId, name, email);
         this.customerId = customerId.trim();
@@ -34,19 +28,10 @@ public class Customer {
         }
     }
 
-    // ── Account management ─────────────────────────────────────────────────────
-    /**
-     * Link an account to this customer (called by Bank.openAccount).
-     */
     void addAccount(Account account) {
         accounts.add(account);
     }
 
-    /**
-     * Find one of this customer's accounts by its account number.
-     *
-     * @throws InvalidCustomerDataException if {@code accountNumber} is null or blank
-     */
     public Account getAccount(String accountNumber) {
         if (accountNumber == null || accountNumber.isBlank()) {
             throw new InvalidCustomerDataException("Account number is required to look up an account.");
@@ -59,7 +44,6 @@ public class Customer {
         return null;
     }
 
-    // ── Display ────────────────────────────────────────────────────────────────
     public void displayInfo() {
         System.out.println("╔══════════════════════════════════════════════════════╗");
         System.out.printf ("║  Customer : %-40s║%n", name);
@@ -78,7 +62,6 @@ public class Customer {
         System.out.println("╚══════════════════════════════════════════════════════╝");
     }
 
-    // ── Getters ────────────────────────────────────────────────────────────────
     public String                getCustomerId() { return customerId; }
     public String                getName()       { return name;       }
     public String                getEmail()      { return email;      }
@@ -86,7 +69,6 @@ public class Customer {
         return java.util.Collections.unmodifiableList(accounts);
     }
 
-    /** Customer profile data failed validation (extends the shared banking exception root). */
     public static class InvalidCustomerDataException extends Account.BankingException {
         public InvalidCustomerDataException(String message) {
             super(message);

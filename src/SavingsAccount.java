@@ -1,20 +1,14 @@
-/**
- * A savings account that earns interest but does NOT allow overdrafts.
- * Demonstrates: Inheritance (extends Account), Polymorphism (overrides withdraw + getAccountFeatures)
- */
 public class SavingsAccount extends Account {
 
-    private static final double INTEREST_RATE = 0.035; // 3.5 % per year
+    private static final double INTEREST_RATE = 0.035;
     private static final int    MONTHLY_WITHDRAWAL_LIMIT = 3;
 
     private int withdrawalsThisMonth = 0;
 
-    // ── Constructor ────────────────────────────────────────────────────────────
     public SavingsAccount(String accountNumber, double initialBalance, Customer owner) {
         super(accountNumber, "Savings Account", initialBalance, owner);
     }
 
-    // ── Polymorphic overrides ──────────────────────────────────────────────────
     @Override
     public void withdraw(double amount) {
         validatePositiveFiniteAmount(amount, "Withdrawal");
@@ -40,10 +34,6 @@ public class SavingsAccount extends Account {
                 INTEREST_RATE * 100, MONTHLY_WITHDRAWAL_LIMIT);
     }
 
-    // ── Savings-specific behaviour ─────────────────────────────────────────────
-    /**
-     * Apply monthly interest to the account balance.
-     */
     public void applyMonthlyInterest() {
         double interest = getBalance() * (INTEREST_RATE / 12);
         if (interest <= 0) {
@@ -58,9 +48,6 @@ public class SavingsAccount extends Account {
         }
     }
 
-    /**
-     * Reset the monthly withdrawal counter (call at the start of a new month).
-     */
     public void resetMonthlyWithdrawals() {
         withdrawalsThisMonth = 0;
     }

@@ -8,35 +8,38 @@ public class CurrentAccount extends Account {
     public CurrentAccount(String accountNumber, double initialBalance,
                           double overdraftLimit, Customer owner) {
         super(accountNumber, "Current Account", initialBalance, owner);
-        this.overdraftLimit = Math.abs(overdraftLimit);
+        if (Double.isNaN(overdraftLimit) || Double.isInfinite(overdraftLimit) || overdraftLimit < 0) {
+            throw new Account.InvalidAmountException(
+                    "Overdraft limit must be a non-negative finite number (maximum debt allowed).");
+        }
+        this.overdraftLimit = overdraftLimit;
     }
 
     @Override
-    public boolean withdraw(double amount) {
-        if (!validateAmount(amount)) return false;
-
+    public void withdraw(double amount) {
+        validatePositiveFiniteAmount(amount, "Withdrawal");
         double projected = getBalance() - amount;
         if (projected < -overdraftLimit) {
-            System.out.printf("  [ERROR] Overdraft limit exceeded for account %s. " +
-                    "Limit: $%.2f, Projected balance: $%.2f%n",
-                    getAccountNumber(), overdraftLimit, projected);
-            return false;
+            throw new Account.OverdraftLimitExceededException(String.format(
+                    "Overdraft limit ($%.2f) would be exceeded on %s (projected balance: $%.2f).",
+                    overdraftLimit, getAccountNumber(), projected));
         }
-
         applyWithdrawal(amount);
-
-        if (getBalance() < 0 && !overdraftActive) {
-            applyWithdrawal(OVERDRAFT_FEE);
-            overdraftActive = true;
-            System.out.printf("  [%s] Overdraft activated. Fee $%.2f charged. Balance: $%.2f%n",
-                    getAccountNumber(), OVERDRAFT_FEE, getBalance());
+        if (getBalance() < 0) {
+            if (!overdraftActive) {
+                applyWithdrawal(OVERDRAFT_FEE);
+                overdraftActive = true;
+                System.out.printf("  [%s] Overdraft activated. Fee of $%.2f charged. Balance: $%.2f%n",
+                        getAccountNumber(), OVERDRAFT_FEE, getBalance());
+            } else {
+                System.out.printf("  [%s] Withdrew $%.2f (overdraft) → Balance: $%.2f%n",
+                        getAccountNumber(), amount, getBalance());
+            }
         } else {
-            System.out.printf("  [%s] Withdrew $%.2f -> Balance: $%.2f%n",
+            overdraftActive = false;
+            System.out.printf("  [%s] Withdrew $%.2f → New balance: $%.2f%n",
                     getAccountNumber(), amount, getBalance());
         }
-
-        if (getBalance() >= 0) overdraftActive = false;
-        return true;
     }
 
     @Override

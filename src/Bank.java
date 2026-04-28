@@ -129,6 +129,23 @@ public class Bank {
         return Collections.unmodifiableSet(registeredCustomerIds);
     }
 
+    public List<Account> getAllAccountsView() {
+        return Collections.unmodifiableList(accounts);
+    }
+
+    public void importExistingAccount(Account account) {
+        if (account == null) {
+            throw new InvalidTransferException("Imported account cannot be null.");
+        }
+        requireRegistered(account.getOwner());
+        if (accountByNumber.containsKey(account.getAccountNumber())) {
+            throw new InvalidTransferException(
+                    "Account '" + account.getAccountNumber() + "' already exists at " + bankName + ".");
+        }
+        registerNewAccount(account, account.getOwner());
+        syncAccountCounter(account.getAccountNumber());
+    }
+
     public void transfer(Account from, Account to, double amount) {
         validateInternalTransfer(from, to, amount);
         System.out.printf("%n[%s] TRANSFER  %s → %s  ($%.2f)%n",
@@ -174,6 +191,25 @@ public class Bank {
 
     private String generateAccountNumber(String prefix) {
         return bankCode + "-" + prefix + "-" + (++accountCounter);
+    }
+
+    private void syncAccountCounter(String accountNumber) {
+        if (accountNumber == null) {
+            return;
+        }
+        int lastDash = accountNumber.lastIndexOf('-');
+        if (lastDash < 0 || lastDash == accountNumber.length() - 1) {
+            return;
+        }
+        String suffix = accountNumber.substring(lastDash + 1);
+        try {
+            int serial = Integer.parseInt(suffix);
+            if (serial > accountCounter) {
+                accountCounter = serial;
+            }
+        } catch (NumberFormatException ignored) {
+            // Ignore non-numeric suffixes while syncing imported account numbers.
+        }
     }
 
     private void requireRegistered(Customer customer) {

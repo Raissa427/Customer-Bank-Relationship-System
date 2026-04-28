@@ -52,5 +52,12 @@ public class SavingsAccount extends Account {
         withdrawalsThisMonth = 0;
     }
 
+    public void setWithdrawalsThisMonthForImport(int withdrawalsThisMonth) {
+        if (withdrawalsThisMonth < 0) {
+            throw new Account.InvalidAmountException("Withdrawals this month cannot be negative.");
+        }
+        this.withdrawalsThisMonth = withdrawalsThisMonth;
+    }
+
     public int getWithdrawalsThisMonth() { return withdrawalsThisMonth; }
 }
